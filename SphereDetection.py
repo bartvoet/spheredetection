@@ -110,7 +110,7 @@ def main():
     cv2.destroyAllWindows()
     
 def test1():
-    depth_image:ndarray = np.loadtxt('bvo2.csv', delimiter=',', dtype=float)
+    depth_image:ndarray = np.loadtxt('depth2d.csv', delimiter=',', dtype=float)
     depth_image_meters = depth_image # Convert mm to meters
 
     s = CenterSlicer(depth_image_meters).sliceFromCenter(3)
@@ -120,8 +120,7 @@ def test1():
     print(s.stdDevation())
     
 def test2():
-    #img = cv2.imread('d.jpeg', cv2.IMREAD_GRAYSCALE)
-    cimg = cv2.imread('d.jpeg') #cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+    cimg = cv2.imread('d.jpeg')
     circles = CircleDetector(62, 70).detectCircle(cimg)
     
     if circles is not None:
