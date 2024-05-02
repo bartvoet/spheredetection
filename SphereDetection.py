@@ -63,8 +63,8 @@ class CircleDetector:
     
     def detectCircle(self, color_image):
         #cimg = cv2.cvtColor(color_image,cv2.COLOR_GRAY2BGR)
-        # img = cv2.medianBlur(cv2.cvtColor(color_image,cv2.COLOR_BGR2GRAY) , 5)
-        img = cv2.medianBlur(color_image , 5)
+        img = cv2.medianBlur(cv2.cvtColor(color_image,cv2.COLOR_BGR2GRAY) , 5)
+        #img = cv2.medianBlur(color_image , 5)
         circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,20, param1=50,param2=30,minRadius=self.minRadius,maxRadius=100)
         return circles
         
@@ -120,9 +120,9 @@ def test1():
     print(s.stdDevation())
     
 def test2():
-    img = cv2.imread('d.jpeg', cv2.IMREAD_GRAYSCALE)
-    cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-    circles = CircleDetector(62, 70).detectCircle(cv2.imread('d.jpeg', cv2.IMREAD_GRAYSCALE))
+    #img = cv2.imread('d.jpeg', cv2.IMREAD_GRAYSCALE)
+    cimg = cv2.imread('d.jpeg') #cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+    circles = CircleDetector(62, 70).detectCircle(cimg)
     
     if circles is not None:
         circles = np.uint16(np.around(circles))
@@ -140,5 +140,5 @@ def test2():
 
 if __name__ == "__main__":
     # main()
-    test1()
-    # test2()
+    # test1()
+    test2()
