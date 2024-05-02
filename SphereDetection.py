@@ -20,22 +20,25 @@ class DepthCamera:
         color_frame = frames.get_color_frame()
         return depth_frame, color_frame
 
-class CenterSlicer:
+class TwoDimensionArea:
     def __init__(self, twodarray:ndarray):
         self.twodarray = twodarray
         self.height, self.width = twodarray.shape
         self.xCenter = int(self.height / 2)
         self.yCenter = int(self.width / 2)
+        
+    def sliceFromPosition(self, distance, pos):
+        x, y = pos
+        return TwoDimensionArea(self.twodarray[(x - distance):(x + distance),
+                                  (y - distance):(y + distance)])
+
+    def sliceFromCenterDeviation(self, distance, deviation):
+        x, y = deviation
+        return self.sliceFromPosition(distance, (self.xCenter + x, self.yCenter + y))
 
     def sliceFromCenter(self, distance):
-        return CenterSlicer(self.twodarray[(self.xCenter - distance):(self.xCenter + distance),
-                                  (self.yCenter - distance):(self.yCenter + distance)])
+        return self.sliceFromPosition(distance, (self.xCenter, self.yCenter))
 
-        
-    def sliceFromCenterWithBoundaries(self, xBefore=0, xAfter=0, yBefore=0, yAfter=0):
-        return CenterSlicer(self.twodarray[(self.xCenter - xBefore):(self.xCenter + xAfter),
-                                  (self.yCenter - yBefore):(self.yCenter + yAfter)])
-        
     def getArray(self):
         return self.twodarray
     
@@ -62,9 +65,7 @@ class CircleDetector:
         self.maxRadius = maxRadius
     
     def detectCircle(self, color_image):
-        #cimg = cv2.cvtColor(color_image,cv2.COLOR_GRAY2BGR)
         img = cv2.medianBlur(cv2.cvtColor(color_image,cv2.COLOR_BGR2GRAY) , 5)
-        #img = cv2.medianBlur(color_image , 5)
         circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,20, param1=50,param2=30,minRadius=self.minRadius,maxRadius=100)
         return circles
         
@@ -80,7 +81,7 @@ def main():
         color_image = np.asanyarray(color_frame.get_data())
 
         print("-----------------------------")
-        print(CenterSlicer(depth_image).sliceFromCenter(3).check(425.0, 3))
+        print(TwoDimensionArea(depth_image).sliceFromCenter(3).check(425.0, 3))
         CircleDetector(10,100).detectCircle(color_image)
         print("-----------------------------")
 
@@ -113,7 +114,7 @@ def test1():
     depth_image:ndarray = np.loadtxt('depth2d.csv', delimiter=',', dtype=float)
     depth_image_meters = depth_image # Convert mm to meters
 
-    s = CenterSlicer(depth_image_meters).sliceFromCenter(3)
+    s = TwoDimensionArea(depth_image_meters).sliceFromCenter(3)
 
     print(s)
     print(s.check(421, 3))
@@ -139,5 +140,5 @@ def test2():
 
 if __name__ == "__main__":
     # main()
-    # test1()
+    test1()
     test2()
