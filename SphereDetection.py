@@ -2,6 +2,7 @@ import cv2
 import pyrealsense2 as rs
 import numpy as np
 from numpy import ndarray
+import time
 
 class DepthCamera:
     def __init__(self):
@@ -68,8 +69,22 @@ class CircleDetector:
         img = cv2.medianBlur(cv2.cvtColor(color_image,cv2.COLOR_BGR2GRAY) , 5)
         circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,20, param1=50,param2=30,minRadius=self.minRadius,maxRadius=100)
         return circles
+
+def record_video(video_name="hello", seconds=100, frame_width=640, frame_height=480):
+    out_mp4 = cv2.VideoWriter(f"{video_name}.mp4", cv2.VideoWriter_fourcc(*"XVID"), 10, (frame_width, frame_height))
+    dc = DepthCamera()
+    
+    program_starts = time.time()
+    program_ends = program_starts + seconds
+    
+    while time.time() < program_ends:
+        # Get frames
+        _, color_frame = dc.get_frame()
+        out_mp4.write(color_frame)
+       
+    out_mp4.release()
         
-def main():
+def show_distance_in_center():
     dc = DepthCamera()
     
     while True:
@@ -110,7 +125,7 @@ def main():
 
     cv2.destroyAllWindows()
     
-def test1():
+def test_depth():
     depth_image:ndarray = np.loadtxt('depth2d.csv', delimiter=',', dtype=float)
     depth_image_meters = depth_image # Convert mm to meters
 
@@ -120,7 +135,7 @@ def test1():
     print(s.check(421, 3))
     print(s.stdDevation())
     
-def test2():
+def test_circles():
     cimg = cv2.imread('d.jpeg')
     circles = CircleDetector(62, 70).detectCircle(cimg)
     
@@ -137,8 +152,20 @@ def test2():
     cv2.imshow('detected circles', cimg)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
+    
 if __name__ == "__main__":
-    # main()
-    test1()
-    test2()
+    menu = [
+        ("Test depth", test_depth),
+        ("Test circle", test_circles),
+        ("Record video", record_video),
+        ("Main", show_distance_in_center)
+    ]
+    
+    for (number, (question, function)) in enumerate(menu):
+        print(f"{number + 1}. {question}")
+    
+    number = int(input("Geef je keuze als nummer aub: "))
+    
+    (question, function) = menu[number-1]
+    print(f"Running {question}")
+    function()
